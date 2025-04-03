@@ -1,1 +1,27 @@
 @import 'tailwindcss';
+
+@theme {
+	--darkBgPurpleSprint: #252333;
+	--darkPurpleSprint: #2d294d;
+	--lightPurpleSprint: #423c6a;
+	--darkRoseSprint: #873384;
+	--lightRoseSprint: #ae62ac;
+}
+
+:root {
+	--background-color: var(--darkBgPurpleSprint);
+	--text-color: #251c2d;
+	--test: #252333;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-color: var(--darkBgPurpleSprint);
+		--text-color: white;
+	}
+}
+
+body {
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
