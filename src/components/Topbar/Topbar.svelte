@@ -1,5 +1,5 @@
 <script>
-	import { hideMenu } from './api.svelte';
+	import { hideMenu, handleLogout } from './api.svelte';
 
 	const toggleMenu = () => hideMenu.set(!$hideMenu);
 </script>
@@ -59,12 +59,12 @@
 					>
 						Configuración
 					</a>
-					<a
-						href="/login"
-						class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 hover:dark:bg-gray-800"
+					<button
+						onclick={handleLogout}
+						class="block w-full cursor-pointer px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 hover:dark:bg-gray-800"
 					>
 						Cerrar Sesión
-					</a>
+					</button>
 				</div>
 			</div>
 		</div>
