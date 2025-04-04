@@ -6,13 +6,15 @@ class LoginUseCases implements LoginRepository {
 
     try {
 
-      const { status } = await ROULETTE_API.post('/auth/login', {
+      const { status, data } = await ROULETTE_API.post('/auth/login', {
         userName,
         password
       });
 
       if (status > 201) throw new Error('Login failed')
 
+      ROULETTE_API.defaults.headers.common['x-token'] = data.token
+      localStorage.setItem('token', data.token);
       return true
     } catch (error) {
       console.log('ERROR LOGIN', error);

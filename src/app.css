@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@plugin 'flowbite/plugin';
+
 @theme {
 	--darkBgPurpleSprint: #252333;
 	--darkPurpleSprint: #2d294d;
@@ -25,3 +27,5 @@ body {
 	background-color: var(--background-color);
 	color: var(--text-color);
 }
+
+@source "../node_modules/flowbite-svelte/dist";

@@ -1,10 +1,31 @@
-<div class="flex items-center justify-center">
-	<ul
-		class="mt-20 w-7/12 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-	>
-		<li class="w-full rounded-t-lg border-b border-gray-200 px-4 py-2 dark:border-gray-600">
-			RULETA
-		</li>
-		<li class="w-full border-b border-gray-200 px-4 py-2 dark:border-gray-600">FIESTA CALIENTE</li>
-	</ul>
+<script>
+	import { Accordion, AccordionItem, Button, Spinner } from 'flowbite-svelte';
+	import { getRoulettes, loading } from './js/dashboard.svelte';
+	import { onMount } from 'svelte';
+	import { roulettes } from '../../shared/store/roulettes.svelte';
+
+	onMount(() => {
+		getRoulettes();
+	});
+</script>
+
+<div class="mx-auto mt-6 w-8/12">
+	<Accordion>
+		<AccordionItem>
+			<span slot="header">RULETAS</span>
+			{#if $loading}
+				<Spinner color="purple" />
+			{:else}
+				{#each $roulettes as item}
+					<Button
+						class="mb-2 block w-full cursor-pointer bg-violet-800 text-left ring-0 hover:bg-violet-600 focus:ring-0"
+						onclick={() => console.log(item)}>{item.name}</Button
+					>
+				{/each}
+			{/if}
+		</AccordionItem>
+		<AccordionItem>
+			<span slot="header">FIESTA CALIENTE</span>
+		</AccordionItem>
+	</Accordion>
 </div>
