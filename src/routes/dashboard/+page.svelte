@@ -1,6 +1,6 @@
 <script>
 	import { Accordion, AccordionItem, Button, Spinner } from 'flowbite-svelte';
-	import { getRoulettes, loading } from './js/dashboard.svelte';
+	import { getRoulettes, loading, goTo } from './js/dashboard.svelte';
 	import { onMount } from 'svelte';
 	import { roulettes } from '../../shared/store/roulettes.svelte';
 
@@ -19,8 +19,10 @@
 				{#each $roulettes as item}
 					<Button
 						class="mb-2 block w-full cursor-pointer bg-violet-800 text-left ring-0 hover:bg-violet-600 focus:ring-0"
-						onclick={() => console.log(item)}>{item.name}</Button
+						onclick={() => goTo(item)}
 					>
+						{item.name}
+					</Button>
 				{/each}
 			{/if}
 		</AccordionItem>

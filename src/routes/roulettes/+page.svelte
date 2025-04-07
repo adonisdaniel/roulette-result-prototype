@@ -1,24 +1,43 @@
 <script lang="ts">
+	import { Button, Progressbar, Spinner } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
 	import {
-		ROULETTE_SINGLE_ZERO_NUMBER,
-		type RouletteNumber
+		ROULETTE_DOUBLE_ZERO_NUMBER,
+		ROULETTE_SINGLE_ZERO_NUMBER
 	} from '../../shared/contants/ROULETTES_NUMBER';
-	import { Button } from 'flowbite-svelte';
+	import { getCurrentRoulette } from '../../shared/store/roulettes.svelte';
+	import {
+		addingResult,
+		addResult,
+		betMessage,
+		handleCreationRound,
+		handleOut,
+		numbers,
+		numberSelected,
+		results,
+		TIME_TO_BET
+	} from './js/roulettes.svelte';
+	import RouletteUseCases from '../../shared/services/games/roulettes/application/RouletteUseCases';
+	import { setCurrentRouletteFisicByProviderId } from '../../shared/store/roulettes-fisics.svelte';
 
-	const numbers = writable<RouletteNumber[]>([]);
+	onMount(async () => {
+		const roulette = getCurrentRoulette();
 
-	const numberSelected = writable<RouletteNumber | null>(null);
-
-	const results = ROULETTE_SINGLE_ZERO_NUMBER;
-
-	onMount(() => {
-		const type_roulette = 'double-zero';
-
-		if (type_roulette === 'double-zero') {
-			numbers.set(ROULETTE_SINGLE_ZERO_NUMBER);
+		if (!roulette) {
+			handleOut();
+			return;
 		}
+
+		if (roulette.doubleZero) {
+			numbers.set(ROULETTE_SINGLE_ZERO_NUMBER);
+		} else {
+			numbers.set(ROULETTE_DOUBLE_ZERO_NUMBER);
+		}
+
+		await RouletteUseCases.getRoulettesFisic();
+		setCurrentRouletteFisicByProviderId(roulette.providerId);
+
+		handleCreationRound();
 	});
 </script>
 
@@ -27,7 +46,7 @@
 		<div class="flex justify-between text-2xl">
 			<p>PROVIDER ID: 100</p>
 			<p>
-				<Button color="dark" href="/dashboard">SALIR</Button>
+				<Button color="dark" onclick={handleOut}>SALIR</Button>
 			</p>
 		</div>
 		<div class="buttons-result-container mt-4 gap-2">
@@ -42,10 +61,19 @@
 			</div>
 			<div class="result-grid">
 				<div>
-					<p class="text-4xl">...CARGANDO...</p>
+					<p class="text-xl">
+						{#if $betMessage}
+							{$betMessage}
+						{:else}
+							...CARGANDO...
+						{/if}
+					</p>
+					{#if $TIME_TO_BET}
+						<Progressbar progress={$TIME_TO_BET} color="gray" />
+					{/if}
 				</div>
 				<div class="number-selected-container">
-					<div class="flex items-center justify-between text-2xl">
+					<div class="flex items-center justify-between text-xl">
 						{#if $numberSelected}
 							<span>NUMERO SELECCIONADO:</span>
 						{:else}
@@ -64,7 +92,17 @@
 					</div>
 					{#if $numberSelected}
 						<div class="mt-4 flex">
-							<Button class="mr-2" color="purple">ENVIAR</Button>
+							<Button
+								class="mr-2"
+								color="purple"
+								disabled={$addingResult}
+								onclick={() => addResult()}
+							>
+								{#if $addingResult}
+									<Spinner class="me-3" size="4" color="white" />
+								{/if}
+								ENVIAR
+							</Button>
 							<Button color="dark" onclick={() => numberSelected.set(null)}>CANCELAR</Button>
 						</div>
 					{/if}
@@ -139,7 +177,7 @@
 
 	.result-container {
 		overflow-x: scroll;
-		height: 60%;
+		height: 70%;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

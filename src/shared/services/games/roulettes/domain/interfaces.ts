@@ -59,3 +59,26 @@ export interface Roulette {
   maxPlenosBet: number;
   numbersOfJackpot: number;
 }
+
+export interface RouletteFisic {
+  jackpot: boolean;
+  doubleZero: boolean;
+  timeOne: number;
+  timeTwo: number;
+  timeThree: number;
+  timeFour: number;
+  aditionalTime: number;
+  timeToReleaseJack: number;
+  timeToStartAnimation: number;
+  animation: number;
+  _id: string;
+  name: string;
+  providerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+  crupier: string;
+  minutesToDisable: number;
+  roundDuration: number;
+  urlTransmision: string;
+}
