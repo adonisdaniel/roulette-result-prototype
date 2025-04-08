@@ -75,6 +75,48 @@ class RoundUseCases implements RoundsRepository {
       return false
     }
   }
+
+  async closeRound({ ID_Ronda, ID_Ruleta, Resultado }: RoundDto): Promise<boolean> {
+    try {
+
+      const result = {
+        ID_Ronda,
+        ID_Ruleta,
+        Resultado,
+        Giro: 'AH',
+        Rpm: '18',
+        Error: '0',
+        Fecha: new Date().toDateString(),
+      };
+
+      const { data } = await ROULETTE_API.put(`/round/end`, result);
+
+      const { token } = data;
+
+      if (token) {
+        ROULETTE_API.defaults.headers.common['x-token'] = data.token
+        localStorage.setItem('token', data.token);
+      }
+
+      return true
+    } catch (error) {
+      console.log('ERROR CLOSING ROUND', error);
+      const log = {
+        request: {
+          ID_Ronda,
+        },
+        response: error,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        success: false,
+        ip: '1.1.1.1',
+        type: 'round',
+        created_at: new Date().toISOString(),
+      };
+
+      LogsUseCases.createLog(log);
+      return false
+    }
+  }
 }
 
 export default new RoundUseCases();

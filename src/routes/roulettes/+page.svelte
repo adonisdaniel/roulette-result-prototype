@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Progressbar, Spinner } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
 		ROULETTE_DOUBLE_ZERO_NUMBER,
 		ROULETTE_SINGLE_ZERO_NUMBER
@@ -9,16 +9,21 @@
 	import {
 		addingResult,
 		addResult,
+		barColor,
 		betMessage,
+		cleanUp,
 		handleCreationRound,
 		handleOut,
+		handleSelectionNumber,
 		numbers,
 		numberSelected,
 		results,
+		roundOpen,
 		TIME_TO_BET
 	} from './js/roulettes.svelte';
 	import RouletteUseCases from '../../shared/services/games/roulettes/application/RouletteUseCases';
 	import { setCurrentRouletteFisicByProviderId } from '../../shared/store/roulettes-fisics.svelte';
+	import { sineOut } from 'svelte/easing';
 
 	onMount(async () => {
 		const roulette = getCurrentRoulette();
@@ -39,6 +44,10 @@
 
 		handleCreationRound();
 	});
+
+	onDestroy(() => {
+		cleanUp();
+	});
 </script>
 
 <div class="page-grid overflow-x-hidden bg-green-800 p-4 font-bold text-white">
@@ -55,7 +64,7 @@
 					<Button
 						color={number.color}
 						style="width: 3.5rem; height: 7rem; font-weight: bolder; font-size: 1.5rem;"
-						onclick={() => numberSelected.set(number)}>{number.text}</Button
+						onclick={() => handleSelectionNumber(number)}>{number.text}</Button
 					>
 				{/each}
 			</div>
@@ -69,48 +78,57 @@
 						{/if}
 					</p>
 					{#if $TIME_TO_BET}
-						<Progressbar progress={$TIME_TO_BET} color="gray" />
+						<Progressbar
+							animate
+							precision={2}
+							tweenDuration={1500}
+							easing={sineOut}
+							progress={$TIME_TO_BET}
+							color={$barColor}
+						/>
 					{/if}
 				</div>
-				<div class="number-selected-container">
-					<div class="flex items-center justify-between text-xl">
+				{#if !$roundOpen}
+					<div class="number-selected-container">
+						<div class="flex items-center justify-between text-xl">
+							{#if $numberSelected}
+								<span>NUMERO SELECCIONADO:</span>
+							{:else}
+								<span>SELECCIONE UN NUMERO</span>
+							{/if}
+							{#if $numberSelected}
+								<Button
+									size="md"
+									class="pointer-events-none ml-4"
+									color={$numberSelected.color}
+									style="width: 3.5rem; height: 7rem; font-weight: bolder; font-size: 1.5rem;"
+								>
+									{$numberSelected.text}
+								</Button>
+							{/if}
+						</div>
 						{#if $numberSelected}
-							<span>NUMERO SELECCIONADO:</span>
-						{:else}
-							<span>SELECCIONE UN NUMERO</span>
-						{/if}
-						{#if $numberSelected}
-							<Button
-								size="md"
-								class="pointer-events-none ml-4"
-								color={$numberSelected.color}
-								style="width: 3.5rem; height: 7rem; font-weight: bolder; font-size: 1.5rem;"
-							>
-								{$numberSelected.text}
-							</Button>
+							<div class="mt-4 flex">
+								<Button
+									class="mr-2"
+									color="purple"
+									disabled={$addingResult}
+									onclick={() => addResult()}
+								>
+									{#if $addingResult}
+										<Spinner class="me-3" size="4" color="white" />
+									{/if}
+									ENVIAR
+								</Button>
+								<Button color="dark" onclick={() => numberSelected.set(null)}>CANCELAR</Button>
+							</div>
 						{/if}
 					</div>
-					{#if $numberSelected}
-						<div class="mt-4 flex">
-							<Button
-								class="mr-2"
-								color="purple"
-								disabled={$addingResult}
-								onclick={() => addResult()}
-							>
-								{#if $addingResult}
-									<Spinner class="me-3" size="4" color="white" />
-								{/if}
-								ENVIAR
-							</Button>
-							<Button color="dark" onclick={() => numberSelected.set(null)}>CANCELAR</Button>
-						</div>
-					{/if}
-				</div>
+				{/if}
 				<div class="result-container">
 					<p>RESULTADOS</p>
 					<div class="mt-4 flex items-center">
-						{#each results as result}
+						{#each $results as result}
 							<Button size="xs" class="pointer-events-none mr-2 mb-2" color={result.color}
 								>{result.text}</Button
 							>

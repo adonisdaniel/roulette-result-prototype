@@ -1,0 +1,1 @@
+export type Colors = 'primary' | 'blue' | 'gray' | 'red' | 'green' | 'yellow' | 'purple' | 'indigo'

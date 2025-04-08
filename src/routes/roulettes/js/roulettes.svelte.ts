@@ -1,11 +1,13 @@
 import { get, writable } from "svelte/store";
-import { ROULETTE_SINGLE_ZERO_NUMBER, type RouletteNumber } from "../../../shared/contants/ROULETTES_NUMBER";
+import { type RouletteNumber } from "../../../shared/contants/ROULETTES_NUMBER";
 import { cleanCurrentRoulette, currentRoulette } from "../../../shared/store/roulettes.svelte";
 import { goto } from "$app/navigation";
 import { GamesTypes } from "../../../shared/contants/GAMES_TYPES";
 import RoundUseCases from "../../../shared/services/games/rounds/application/RoundUseCases";
 import { rounds, roundsFisics } from "../../../shared/store/rounds.svelte";
 import type { Roulette } from "../../../shared/services/games/roulettes/domain/interfaces";
+import LogsUseCases from "../../../shared/services/logs/application/LogsUseCases";
+import type { Colors } from "../interfaces/common.interfaces";
 
 // VARS AND GETTERS
 
@@ -13,7 +15,7 @@ export const numbers = writable<RouletteNumber[]>([]);
 
 export const numberSelected = writable<RouletteNumber | null>(null);
 
-export const results = ROULETTE_SINGLE_ZERO_NUMBER;
+export const results = writable<RouletteNumber[]>([]);
 
 export const betMessage = writable<string>("");
 export const CURRENT_ROUND = writable<string | null>(null);
@@ -100,7 +102,6 @@ export const createRound = async () => {
   await RoundUseCases.startRound({ ID_Ronda, ID_Ruleta: roulette.providerId });
 
   betMessage.set(`RONDA: ${ID_Ronda} ESPERANDO RESULTADO`);
-  console.log(get(betMessage))
   CURRENT_ROUND.set(ID_Ronda);
 
   TIME_TO_BET.set(100);
@@ -136,47 +137,95 @@ export const addResult = async () => {
     Resultado: numberSelectedValue.value,
   };
 
-  console.log('data', data);
+  const success = await RoundUseCases.closeRound(data);
 
-  // await this.closeRound(data);
+  if (!success) {
+    addingResult.set(false);
+    const log = {
+      request: data,
+      response: data,
+      error: data,
+      success: false,
+      ip: '1.1.1.1',
+      type: 'round',
+      created_at: new Date().toISOString(),
+    };
 
-  // if (!this.success) {
-  //   this.addingResult = false;
-  //   await this.createLog({
-  //     request: data,
-  //     response: data,
-  //     error: data,
-  //     success: false,
-  //     ip: '1.1.1.1',
-  //     type: 'round',
-  //   });
-  //   return Swal.fire('Error cerrando ronda', '', 'error');
-  // }
+    LogsUseCases.createLog(log);
 
-  // Swal.fire({
-  //   title: 'Ronda cerrada',
-  //   icon: 'success',
-  //   timer: 1000,
-  //   showConfirmButton: false,
-  // });
+    return window.alert('Error cerrando ronda');
+  }
 
-  // let color = this.reds.includes(this.numberSelected)
-  //   ? 'red'
-  //   : [0, 37].includes(this.numberSelected)
-  //     ? 'green'
-  //     : 'black';
-  // this.results.unshift({ result: this.numberSelected, color });
+  window.alert('Ronda cerrada')
 
-  // this.cleanBetInterval();
+
+  results.update((value) => {
+
+    value.unshift(numberSelectedValue);
+
+    if (value.length === 10) value.pop();
+
+    return value
+  });
+
+  clearInterval(get(intervalo))
   // this.progressValue = 30;
   betMessage.set('RONDA CERRADA');
-  // this.barColor = 'danger';
+  barColor.set('red');
   numberSelected.set(null);
   addingResult.set(false);
   TIME_TO_BET.set(100);
+  timeToBet.set(30);
 
-  // setTimeout(() => {
-  //   this.createBetInterval();
-  //   this.createRound();
-  // }, 2000);
+  roundOpen.set(true);
+
+  setTimeout(() => {
+    createBetInterval();
+    createRound();
+  }, 2000);
+}
+
+const intervalo = writable<ReturnType<typeof setInterval> | undefined>(undefined);
+
+const timeToBet = writable<number>(0);
+
+export const roundOpen = writable<boolean>(false);
+
+export const barColor = writable<Colors>('gray');
+
+const createBetInterval = () => {
+  intervalo.set(setInterval(() => {
+
+    const timeToBetValue = get(timeToBet)
+
+    TIME_TO_BET.update(() => (timeToBetValue * 100) / 30);
+
+    if (timeToBetValue <= 0) {
+      roundOpen.set(false);
+      betMessage.set('APUESTAS CERRADAS');
+      barColor.set('red');
+
+      clearInterval(get(intervalo));
+      return;
+    }
+    betMessage.set('RONDA ABIERTA');
+    barColor.set('green');
+
+    timeToBet.update((value) => value - 1);
+  }, 1000))
+}
+
+export const cleanUp = () => {
+  clearInterval(get(intervalo));
+  results.set([]);
+  numberSelected.set(null);
+  betMessage.set('');
+  CURRENT_ROUND.set(null);
+  TIME_TO_BET.set(null);
+  addingResult.set(false);
+}
+
+export const handleSelectionNumber = (number: RouletteNumber) => {
+  if (get(roundOpen)) return
+  numberSelected.set(number)
 }

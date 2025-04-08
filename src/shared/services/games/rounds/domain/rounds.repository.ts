@@ -5,4 +5,5 @@ export abstract class RoundsRepository {
   abstract getProviderRounds(filter: Filter): Promise<boolean>
   abstract getRounds(filter: Filter): Promise<boolean>
   abstract startRound(round: RoundDto): Promise<boolean>
+  abstract closeRound(round: RoundDto): Promise<boolean>
 }

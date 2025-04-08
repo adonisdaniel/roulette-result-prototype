@@ -69,4 +69,5 @@ export interface Roulettecurrency {
 export interface RoundDto {
   ID_Ronda: string;
   ID_Ruleta: string;
+  Resultado?: number;
 }
