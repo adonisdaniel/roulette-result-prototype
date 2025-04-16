@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { Input } from 'flowbite-svelte';
 	import Button from '../../components/Button.svelte';
-	import { user, loaderLogin, login } from './js/login.svelte';
+	import { user, loaderLogin, login, loginSuccess } from './js/login.svelte';
 
 	const handleClick = () => {
 		login();
@@ -16,16 +17,17 @@
 			<!-- Campo de correo electrónico -->
 			<div>
 				<label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-200"
-					>Correo Electrónico o Nombre de Usuario</label
+					>Nombre de Usuario</label
 				>
-				<input
+				<Input
 					type="text"
 					id="email"
 					name="email"
 					class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-					placeholder="ejemplo@dominio.com | MyName"
+					placeholder="UserName"
 					required
 					bind:value={user.user}
+					color={typeof $loginSuccess === 'undefined' ? 'base' : $loginSuccess ? 'green' : 'red'}
 				/>
 			</div>
 
@@ -34,7 +36,7 @@
 				<label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-200"
 					>Contraseña</label
 				>
-				<input
+				<Input
 					type="password"
 					id="password"
 					name="password"
@@ -42,6 +44,7 @@
 					placeholder="********"
 					required
 					bind:value={user.password}
+					color={typeof $loginSuccess === 'undefined' ? 'base' : $loginSuccess ? 'green' : 'red'}
 				/>
 			</div>
 
@@ -52,10 +55,10 @@
 		</form>
 
 		<!-- Enlace para recuperar contraseña -->
-		<div class="mt-4 text-center">
+		<!-- <div class="mt-4 text-center">
 			<a href="/forgot-password" class="text-sm text-indigo-600 hover:text-indigo-500"
 				>¿Olvidaste tu contraseña?</a
 			>
-		</div>
+		</div> -->
 	</div>
 </div>

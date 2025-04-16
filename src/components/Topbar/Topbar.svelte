@@ -47,18 +47,6 @@
 				]}
 			>
 				<div class="py-1">
-					<a
-						href="/profile"
-						class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 hover:dark:bg-gray-800"
-					>
-						Perfil
-					</a>
-					<a
-						href="/config"
-						class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 hover:dark:bg-gray-800"
-					>
-						Configuración
-					</a>
 					<button
 						onclick={handleLogout}
 						class="block w-full cursor-pointer px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 hover:dark:bg-gray-800"

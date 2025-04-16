@@ -12,6 +12,7 @@ export const user = $state({
 });
 
 export const loaderLogin = writable(false)
+export const loginSuccess = writable<boolean | undefined>(undefined)
 
 export const login = async () => {
 
@@ -20,6 +21,8 @@ export const login = async () => {
   const bool = await loginUseCases.login(user.user, user.password)
 
   loaderLogin.set(false)
-  if (!bool) return
+  if (!bool) return loginSuccess.set(false)
+
+  loginSuccess.set(true)
   goto('/dashboard')
 }
