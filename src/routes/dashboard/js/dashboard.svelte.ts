@@ -17,8 +17,6 @@ export const getRoulettes = async () => {
 }
 
 export const goTo = async (roulette: Roulette) => {
-  console.log("Roulette", roulette);
-
   saveCurrentRoulette(roulette);
   goto('/roulettes');
 }

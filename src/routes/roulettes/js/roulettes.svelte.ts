@@ -8,6 +8,7 @@ import { rounds, roundsFisics } from "../../../shared/store/rounds.svelte";
 import type { Roulette } from "../../../shared/services/games/roulettes/domain/interfaces";
 import LogsUseCases from "../../../shared/services/logs/application/LogsUseCases";
 import type { Colors } from "../interfaces/common.interfaces";
+import { showModalAndClose } from "../../../components/Modal/js/modal.svelte";
 
 // VARS AND GETTERS
 
@@ -114,21 +115,21 @@ export const addResult = async () => {
 
   if (!numberSelectedValue) {
     addingResult.set(false);
-    return window.alert('Seleccione un numero');
+    return showAlertModal('Error', 'Seleccione un numero');
   }
 
   const currentRound = get(CURRENT_ROUND)
 
   if (!currentRound) {
     addingResult.set(false);
-    return window.alert('No hay ronda');
+    return showAlertModal('Error', 'No hay ronda');
   }
 
   const roulette: Roulette | null = get(currentRoulette) || localStorage.getItem('currentRoulette') ? JSON.parse(localStorage.getItem('currentRoulette') || '') : null;
 
   if (!roulette) {
     addingResult.set(false);
-    return window.alert('No hay ROULETTE ID');
+    return showAlertModal('Error', 'No hay ruleta seleccionada');
   }
 
   const data = {
@@ -153,11 +154,10 @@ export const addResult = async () => {
 
     LogsUseCases.createLog(log);
 
-    return window.alert('Error cerrando ronda');
+    return showAlertModal('Error', 'Error al cerrar la ronda');
   }
 
-  window.alert('Ronda cerrada')
-
+  showSuccessModal('Ronda cerrada', '')
 
   results.update((value) => {
 
@@ -223,9 +223,50 @@ export const cleanUp = () => {
   CURRENT_ROUND.set(null);
   TIME_TO_BET.set(null);
   addingResult.set(false);
+  roundOpen.set(false);
 }
 
 export const handleSelectionNumber = (number: RouletteNumber) => {
   if (get(roundOpen)) return
   numberSelected.set(number)
 }
+
+// MODAL
+
+const colorRed = 'bg-red-900 dark:bg-red-900';
+const colorGreen = 'bg-green-900 dark:bg-green-900';
+
+export const colorBg = writable(colorRed);
+export const colorModal = writable<string | undefined>(undefined);
+
+const switchColorModalRed = () => {
+  colorBg.set(colorRed);
+  colorModal.set('red');
+}
+
+const switchColorModalGreen = () => {
+  colorBg.set(colorGreen);
+  colorModal.set('green');
+}
+
+export const title = writable<string>('');
+export const description = writable<string>('');
+
+const showModal = (
+  titleP: string,
+  descriptionP: string,
+  switchColor: () => void
+) => {
+  title.set(titleP);
+  description.set(descriptionP);
+  switchColor(); // Llama a la función para cambiar el color del modal
+  showModalAndClose();
+};
+
+const showAlertModal = (titleP: string, descriptionP: string) => {
+  showModal(titleP, descriptionP, switchColorModalRed);
+};
+
+const showSuccessModal = (titleP: string, descriptionP: string) => {
+  showModal(titleP, descriptionP, switchColorModalGreen);
+};

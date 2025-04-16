@@ -12,6 +12,9 @@
 		barColor,
 		betMessage,
 		cleanUp,
+		colorBg,
+		colorModal,
+		description,
 		handleCreationRound,
 		handleOut,
 		handleSelectionNumber,
@@ -19,11 +22,13 @@
 		numberSelected,
 		results,
 		roundOpen,
-		TIME_TO_BET
+		TIME_TO_BET,
+		title
 	} from './js/roulettes.svelte';
 	import RouletteUseCases from '../../shared/services/games/roulettes/application/RouletteUseCases';
 	import { setCurrentRouletteFisicByProviderId } from '../../shared/store/roulettes-fisics.svelte';
 	import { sineOut } from 'svelte/easing';
+	import Modal from '../../components/Modal/Modal.svelte';
 
 	onMount(async () => {
 		const roulette = getCurrentRoulette();
@@ -139,6 +144,7 @@
 		</div>
 	</div>
 </div>
+<Modal title={$title} description={$description} colorBg={$colorBg} colorModal={$colorModal} />
 
 <style>
 	.page-grid {
